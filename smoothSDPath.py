@@ -115,14 +115,12 @@ def getGradient(n_a, m_a, n_b, m_b):
     '''
     return gradient
 
-
 '''
 getGradient(1,1,135,196)
 '''
 
-
 # parameter all start from 1
-def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m):
+def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m, gradient_threshold):
     # to match with the all array start from 0
     startNode_n = startNode_n-1
     startNode_m = startNode_m-1
@@ -145,20 +143,60 @@ def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m):
     #shortDistArr = np.zeros(rowArr_shape, dtype = np.int)
     # preVertex array stores all the preVertex this is node (for calculate the whole shortest path in the end)
     preVertex = [[[] for col in range(raw_arr.shape[1])] for row in range(raw_arr.shape[0])]
+    # give the previous node of the start node it self for preventing later problem
+    preVertex[startNode_n][startNode_m].append(startNode_n)
+    preVertex[startNode_n][startNode_m].append(startNode_m)
 
     # the distance to itself is 0.
     shortDistArr[startNode_n][startNode_m] = 0
 
+    '''
+    # This does not work
+    # Because in the map there are are cells will be be visited at all due to out of gradient threshold
+    # so before looping make sure that how the visited map will be look like for end the loop
+    # go through all the cells
+    for check_i in range(rowArr_shape[0]):
+        for check_j in range(rowArr_shape[1]):
+            check_neighbor = 0
+            check_cannot_reached_nei = 0
+            # go through all the cells around this cell
+            for check_m in range(check_j - 1, check_j + 2):
+                # prevent out of bound of array
+                if check_m < 0 or check_m > (rowArr_shape[1]-1):
+
+                    continue
+                for check_n in range(check_i - 1, check_i + 2):
+                    if check_n < 0 or check_n > (rowArr_shape[0] - 1):
+
+                        continue
+                    # skip itself
+                    elif check_n == check_i and check_m == check_j:
+                        continue
+                    else:
+                        check_neighbor = check_neighbor+1
+                        if abs(getGradient(check_i,check_j,check_n,check_m)) > gradient_threshold:
+                            check_cannot_reached_nei = check_cannot_reached_nei+1
+
+            # this cell can not be reached by all the neighbor cells
+            if check_neighbor == check_cannot_reached_nei:
+                allvisited_arr[check_i][check_j] = 0
+    print('the nodes can not be reached',allvisited_arr)
+    '''
+
+
+    # set the start node as current node for starting loop
     current_node_n = startNode_n
     current_node_m = startNode_m
     # loop until the all the nodes are visited
-    while not ((visitUnvisitArr == allvisited_arr).all()):
+    #while not ((visitUnvisitArr == allvisited_arr).all()):
+    while visitUnvisitArr[endNode_n][endNode_m] != 1:
         # update shortest distance of 9 cells around the current node
         for i in range(current_node_m-1,current_node_m+2):
             # prevent out of bound of array
             if i < 0 or i > (raw_arr.shape[1]-1):
                 continue
             for j in range(current_node_n-1,current_node_n+2):
+
                 if j < 0 or j > (raw_arr.shape[0]-1):
                     continue
                 # skip itself
@@ -167,7 +205,12 @@ def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m):
                 # skip the visited node
                 elif visitUnvisitArr[j][i] == 1:
                     continue
+                # If the gradient is too high then this node can not be reached
+                elif abs(getGradient(current_node_n,current_node_m,j,i)) > gradient_threshold:
+                    #print("No way ahead",getGradient(current_node_n,current_node_m,j,i))
+                    continue
                 else:
+                    #print(getGradient(current_node_n,current_node_m,j,i))
                     # these are the 8 connected nodes around this cell   ( np.inf == np.inf +1 )
                     # update the shortest distance. "Relaxation step"!!!
                     if shortDistArr[j][i] > (shortDistArr[current_node_n][current_node_m] + getDistance1(getCoordinates(current_node_n,current_node_m)[1],
@@ -187,15 +230,21 @@ def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m):
                             preVertex[j][i][0] = current_node_n
                             preVertex[j][i][1] = current_node_m
 
+                        #print('---',shortDistArr)
 
         # 1 means already visited and will not be visit again
         visitUnvisitArr[current_node_n][current_node_m] = 1
+        #print('visited_array',visitUnvisitArr)
+
+        # once reached the end node this job is done
+        if visitUnvisitArr[endNode_n][endNode_m] == 1:
+            continue
 
         temp_low = np.inf
         temp_low_n = None
         temp_low_m = None
 
-
+        # find the lowest value and the cell in the all unvisited nodes
         for q in range(shortDistArr.shape[0]):
             for w in range(shortDistArr.shape[1]):
                 if visitUnvisitArr[q][w] == 1:
@@ -205,6 +254,12 @@ def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m):
                         temp_low = shortDistArr[q][w]
                         temp_low_n = q
                         temp_low_m = w
+
+        # if there are no more nodes is available then end the loop. say it does not work in this gradient case
+        if temp_low_n is None and temp_low_m is None:
+            print ('-------THERE IS NO ROUTE MEET YOUR REQUIREMENT-----')
+            print ('-------HINT:GIVE HIGHER GRADIENT OR CHOSE OTHER START POINT OR END POINT-----')
+            break
 
         current_node_n = temp_low_n
         current_node_m = temp_low_m
@@ -227,8 +282,9 @@ def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m):
                 the_shortest_path.insert(0,[pre_node_n,pre_node_m])
                 pre_node_n = preVertex[pre_node_n][pre_node_m][0]
                 pre_node_m = preVertex[pre_node_n][pre_node_m][1]
+
             else:
-                # print(shortDistArr)
+                #print(shortDistArr)
                 the_shortest_path.insert(0, [startNode_n, startNode_m])
                 print('the shortest distance :',the_shortest_distance)
                 print('Path :',the_shortest_path)
@@ -240,68 +296,10 @@ def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m):
                 print("Route:",demonstrate_array)
 
 
-dijkstra(1, 1, 8, 12)
+dijkstra(1, 1, 8, 12, 3)
 
 
 
-
-
-
-
-
-
-'''
-        # visitedNode is a tuple contains non zero cell indexes which are about to find the lowest cell
-        unvisitedNodes = np.where(visitUnvisitArr == 0)
-
-        lowest_value = np.inf
-        lowest_node_n = None
-        lowest_node_m = None
-        # find the lowest value and the node in all the unvisited nodes
-        # proceed to the next node
-        for k in range(len(unvisitedNodes[0])):
-
-            if len(unvisitedNodes[0]) <= 0:
-                break
-            # set the first trial the lowest then compare with others later
-            if k == 0:
-                lowest_value = shortDistArr[unvisitedNodes[0][k],unvisitedNodes[1][k]]
-                lowest_node_n = unvisitedNodes[0][k]
-                lowest_node_m = unvisitedNodes[1][k]
-            elif k != 0:
-                if shortDistArr[unvisitedNodes[0][k], unvisitedNodes[1][k]] < lowest_value:
-                    lowest_value = shortDistArr[unvisitedNodes[0][k], unvisitedNodes[1][k]]
-                    lowest_node_n = unvisitedNodes[0][k]
-                    lowest_node_m = unvisitedNodes[1][k]
-                    #print ('lowest_node_n =',lowest_node_n)
-
-        if len(unvisitedNodes[0]) > 0:
-            current_node_n = lowest_node_n
-            current_node_m = lowest_node_m
-            count = count +1
-            print('current location : %d,%d'%(current_node_n,current_node_m))
-            print(count)
-
-
-    else:
-        the_shortest_distance = shortDistArr[endNode_n][endNode_m]
-        the_shortest_path = []
-        print("endNoden: ",endNode_n)
-        print("endNodem: ", endNode_m)
-        print(preVertex)
-        pre_node_n= preVertex[endNode_n][endNode_m][0]
-        pre_node_m = preVertex[endNode_n][endNode_m][1]
-        the_shortest_path.insert(0,[endNode_n,endNode_m])
-        # iterate to the start node
-        while pre_node_n != startNode_n and pre_node_m != startNode_m:
-            the_shortest_path.insert(0,[pre_node_n,pre_node_m])
-            pre_node_n = preVertex[pre_node_n][pre_node_m][0]
-            pre_node_m = preVertex[pre_node_n][pre_node_m][1]
-        else:
-            print(shortDistArr)
-            print(the_shortest_path)
-
-'''
 
 
 

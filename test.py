@@ -46,3 +46,4 @@ print('Distance2={0:.3f} km'.format(getDistance2(Lat_A,Lng_A,Lat_B,Lng_B)))
 # or  we just use 98 feet. 29.8704m  diagonal need to multiply by1.41421356237
 
 print('45',math.degrees(math.atan(1)))
+print(math.atan(25/1000))

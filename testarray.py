@@ -39,4 +39,14 @@ demonstrate_array = np.full((5,6),np.nan)
 print(demonstrate_array)
 
 
+p = 1
+while(p<5):
+    p += 1
+    if p == 2:
+        continue
+else:
+    print('p',p)
+    print('I am out')
+
+
 

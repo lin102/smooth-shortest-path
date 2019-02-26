@@ -1,6 +1,6 @@
 
 import numpy as np
-
+import arcpy
 import os
 import math
 
@@ -49,4 +49,10 @@ else:
     print('I am out')
 
 
+
+
+
+str = "python str"
+strr = 'r"' + str + '"'
+print (strr)
 

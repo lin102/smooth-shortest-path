@@ -1,7 +1,6 @@
 
 import numpy as np
 import arcpy
-import os
 import math
 
 '''
@@ -10,11 +9,29 @@ arcpy.Clip_management(
     "E:/srtm_37_03/srtm_37_03_clip.tif", "#", "#", "NONE", "NO_MAINTAIN_EXTENT")
 '''
 
+
+input_dem_file_path = arcpy.GetParameterAsText(0)
+output_shape_file_path = arcpy.GetParameterAsText(6) +'.shp'
+input_start_n = int(arcpy.GetParameterAsText(1))
+input_start_m = int(arcpy.GetParameterAsText(2))
+input_end_n = int(arcpy.GetParameterAsText(3))
+input_end_m = int(arcpy.GetParameterAsText(4))
+input_gradient_threshold = int(arcpy.GetParameterAsText(5))
+
+
+#input_dem_file_path = 'E:/srtm_37_03/srtm_37_03_mini.tif'
+#input_mxd_map_path = r"C:\Users\Lin\Desktop\smooth_path.mxd"
+
+#output_shape_file_path = r"E:\TSP_shapefile\the_shortest_smooth_path.shp"
+
+
 # Get input Raster properties
-inRas = arcpy.Raster('E:/srtm_37_03/srtm_37_03_mini.tif')
+inRas = arcpy.Raster(input_dem_file_path)
+#inRas = arcpy.Raster('E:/srtm_37_03/srtm_37_03_clip.tif')
 lowerLeft = arcpy.Point(inRas.extent.XMin,inRas.extent.YMin)
 cellSize = inRas.meanCellWidth
 spatialReference = inRas.spatialReference
+
 '''
 print('lowerLeft = ',lowerLeft)
 print('cellSize = ',cellSize)
@@ -22,7 +39,7 @@ print('spatialReference = ',spatialReference)
 '''
 
 # Convert Raster to numpy array
-raw_arr = arcpy.RasterToNumPyArray(inRas,nodata_to_value=-1)
+raw_arr = arcpy.RasterToNumPyArray(inRas, nodata_to_value=-1)
 #print("arr =", raw_arr)
 rows = raw_arr.shape[0]
 columns = raw_arr.shape[1]
@@ -37,8 +54,9 @@ print("columns =", columns)
 # Return coordinates is a list contains [longitude,latitude]
 def getCoordinates(n,m):
     coordinates = []
-    lon = inRas.extent.XMin + m * inRas.meanCellWidth
-    lat = inRas.extent.YMin + ((rows - 1 - n) * inRas.meanCellHeight)
+    # +0.5  to get the longitude and latitude from the center of each cell
+    lon = inRas.extent.XMin + (m+0.5) * inRas.meanCellWidth
+    lat = inRas.extent.YMin + ((rows - 1 - n +0.5) * inRas.meanCellHeight)
     coordinates.append(lon)
     coordinates.append(lat)
     #print('coordinates is', coordinates)
@@ -69,7 +87,7 @@ def getDistance1(Lat_A,Lng_A,Lat_B,Lng_B): #Haversine with 2 radius
     distance=ra*(xx+dr)
     return distance
 
-def getDistance2(lat1,lng1,lat2,lng2):# Haversine
+def getDistance2(lat1,lng1,lat2,lng2):# Haversine distance
     radlat1=math.radians(lat1)
     radlat2=math.radians(lat2)
     a=radlat1-radlat2
@@ -127,9 +145,6 @@ def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m, gradient_threshold)
     endNode_n = endNode_n-1
     endNode_m = endNode_m-1
 
-    count = 0
-
-    the_shortest_distance = None
     rowArr_shape = raw_arr.shape
     # This array shows the node is visited or not, the initial array
     # is all 0 which means all nodes are unvisited so far, once visited will turn to 1
@@ -295,8 +310,54 @@ def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m, gradient_threshold)
                     demonstrate_array[the_shortest_path[p][0]][the_shortest_path[p][1]] = 0
                 print("Route:",demonstrate_array)
 
+                geo_path = []
+                # turn the numpy coordinate back to geographical coordinates
+                for np_coord in the_shortest_path:
+                    geo_node = []
+                    geo_node.append(getCoordinates(np_coord[0], np_coord[1])[0])
+                    geo_node.append(getCoordinates(np_coord[0], np_coord[1])[1])
+                    geo_path.append(geo_node)
+                print('geo_path',geo_path)
 
-dijkstra(1, 1, 8, 12, 3)
+
+                # create the path (polyline) shape file
+                # A list that will hold each of the Polyline objects
+                path = []
+                path.append(geo_path)
+                features = []
+                for feature in path:
+                    # Create a Polyline object based on the array of points
+                    # Append to the list of Polyline objects
+                    features.append(
+                        arcpy.Polyline(
+                            arcpy.Array([arcpy.Point(*coords) for coords in feature]),spatialReference))
+
+                # Persist a copy of the Polyline objects using CopyFeatures
+                arcpy.CopyFeatures_management(features, output_shape_file_path)
+
+                # put the line shape file on the map---------
+
+                # get the map document
+                #mxd = arcpy.mapping.MapDocument(input_mxd_map_path)
+                mxd = arcpy.mapping.MapDocument("CURRENT")
+
+                print(mxd)
+                # get the data frame
+                dataframe = arcpy.mapping.ListDataFrames(mxd, "*")[0]
+                print (dataframe)
+                # create a new layer
+                smooth_path_layer = arcpy.mapping.Layer(output_shape_file_path)
+                print (smooth_path_layer)
+                # add the layer to the map at the bottom of the TOC in data frame 0
+                arcpy.mapping.AddLayer(dataframe, smooth_path_layer, "TOP")
+
+                # Refresh things
+                arcpy.RefreshActiveView()
+                arcpy.RefreshTOC()
+                #del mxd, dataframe, smooth_path_layer
+
+
+dijkstra(input_start_n, input_start_m, input_end_n, input_end_m, input_gradient_threshold)
 
 
 

@@ -9,7 +9,6 @@ arcpy.Clip_management(
     "E:/srtm_37_03/srtm_37_03_clip.tif", "#", "#", "NONE", "NO_MAINTAIN_EXTENT")
 '''
 
-
 input_dem_file_path = arcpy.GetParameterAsText(0)
 output_shape_file_path = arcpy.GetParameterAsText(6) +'.shp'
 input_start_n = int(arcpy.GetParameterAsText(1))
@@ -18,10 +17,9 @@ input_end_n = int(arcpy.GetParameterAsText(3))
 input_end_m = int(arcpy.GetParameterAsText(4))
 input_gradient_threshold = int(arcpy.GetParameterAsText(5))
 
-
+# run outside the arcmap window
 #input_dem_file_path = 'E:/srtm_37_03/srtm_37_03_mini.tif'
 #input_mxd_map_path = r"C:\Users\Lin\Desktop\smooth_path.mxd"
-
 #output_shape_file_path = r"E:\TSP_shapefile\the_shortest_smooth_path.shp"
 
 
@@ -40,14 +38,9 @@ print('spatialReference = ',spatialReference)
 
 # Convert Raster to numpy array
 raw_arr = arcpy.RasterToNumPyArray(inRas, nodata_to_value=-1)
-#print("arr =", raw_arr)
 rows = raw_arr.shape[0]
 columns = raw_arr.shape[1]
 
-'''
-print("rows =", rows)
-print("columns =", columns)
-'''
 
 # Get Coordinates
 # n is row number!!! m is column number!!!
@@ -63,7 +56,6 @@ def getCoordinates(n,m):
     return coordinates
 
 '''
-#(271,389)
 Lon1 = getCoordinates(100, 100)[0]
 Lat1 = getCoordinates(100, 100)[1]
 Lon2 = getCoordinates(100, 101)[0]
@@ -101,17 +93,10 @@ def getDistance2(lat1,lng1,lat2,lng2):# Haversine distance
     else:
         return s
 
-
 '''
 distancePixcel1 = getDistance1(Lat1,Lon1,Lat2,Lon2)
 distancePixcel2 = getDistance2(Lat1,Lon1,Lat2,Lon2)
-print('distancePixcel1 is ',distancePixcel1)
-print('distancePixcel2 is ',distancePixcel2)
 '''
-
-# let set the distance between each point  = 29.870
-# the diagonal distance is 30*1.41421356237 = 42.243
-
 
 # Gradient Calculation
 # n is row number m is column number
@@ -125,20 +110,11 @@ def getGradient(n_a, m_a, n_b, m_b):
     # *1000 because getdistance function returns the km unite
     distance_ab = getDistance1(coord_lat_a,coord_lon_a, coord_lat_b,coord_lon_b)*1000
     gradient = math.degrees(math.atan((height/distance_ab)))
-    '''
-    print('%f,%f,%f,%f'%(coord_lon_a,coord_lat_a,coord_lon_b,coord_lat_b))
-    print('height = ',height)
-    print('distance_ab = ',distance_ab)
-    print('gradient =',gradient)
-    '''
     return gradient
 
-'''
-getGradient(1,1,135,196)
-'''
 
 # parameter all start from 1
-def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m, gradient_threshold):
+def dijkstra_gradient_threshold(startNode_n, startNode_m, endNode_n, endNode_m, gradient_threshold):
     # to match with the all array start from 0
     startNode_n = startNode_n-1
     startNode_m = startNode_m-1
@@ -150,7 +126,8 @@ def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m, gradient_threshold)
     # is all 0 which means all nodes are unvisited so far, once visited will turn to 1
     visitUnvisitArr = np.zeros(rowArr_shape, dtype = np.int)
     #if all the nodes are visited in the end the arr should be the same as this one (used for comparision and end the lope)
-    allvisited_arr = np.full(rowArr_shape, 1,dtype = np.int)
+    #allvisited_arr = np.full(rowArr_shape, 1,dtype = np.int)
+
     # this array store the shortest distance. the initial value is inf which should means it is infinite
     # dtype is float because np.inf is float
     shortDistArr = np.full(rowArr_shape,np.inf)
@@ -166,7 +143,8 @@ def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m, gradient_threshold)
     shortDistArr[startNode_n][startNode_m] = 0
 
     '''
-    # This does not work
+    # This does not work in this gradient threshold case anymore 
+    # but it works if no gradient needed and global shortest path needed
     # Because in the map there are are cells will be be visited at all due to out of gradient threshold
     # so before looping make sure that how the visited map will be look like for end the loop
     # go through all the cells
@@ -198,12 +176,13 @@ def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m, gradient_threshold)
     print('the nodes can not be reached',allvisited_arr)
     '''
 
-
     # set the start node as current node for starting loop
     current_node_n = startNode_n
     current_node_m = startNode_m
     # loop until the all the nodes are visited
     #while not ((visitUnvisitArr == allvisited_arr).all()):
+
+    # loop until the end node is visited or break if there are no nodes available due to current parameter
     while visitUnvisitArr[endNode_n][endNode_m] != 1:
         # update shortest distance of 9 cells around the current node
         for i in range(current_node_m-1,current_node_m+2):
@@ -225,7 +204,6 @@ def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m, gradient_threshold)
                     #print("No way ahead",getGradient(current_node_n,current_node_m,j,i))
                     continue
                 else:
-                    #print(getGradient(current_node_n,current_node_m,j,i))
                     # these are the 8 connected nodes around this cell   ( np.inf == np.inf +1 )
                     # update the shortest distance. "Relaxation step"!!!
                     if shortDistArr[j][i] > (shortDistArr[current_node_n][current_node_m] + getDistance1(getCoordinates(current_node_n,current_node_m)[1],
@@ -245,11 +223,8 @@ def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m, gradient_threshold)
                             preVertex[j][i][0] = current_node_n
                             preVertex[j][i][1] = current_node_m
 
-                        #print('---',shortDistArr)
-
         # 1 means already visited and will not be visit again
         visitUnvisitArr[current_node_n][current_node_m] = 1
-        #print('visited_array',visitUnvisitArr)
 
         # once reached the end node this job is done
         if visitUnvisitArr[endNode_n][endNode_m] == 1:
@@ -274,22 +249,22 @@ def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m, gradient_threshold)
         if temp_low_n is None and temp_low_m is None:
             print ('-------THERE IS NO ROUTE MEET YOUR REQUIREMENT-----')
             print ('-------HINT:GIVE HIGHER GRADIENT OR CHOSE OTHER START POINT OR END POINT-----')
+            arcpy.AddError("There is no way available under the given gradient threshold, \
+                          please increase the gradient threshold or change to other start and end point!")
+            arcpy.AddMessage("There is no way available under the given gradient threshold, \
+                          please increase the gradient threshold or change to other start and end point! ")
             break
 
         current_node_n = temp_low_n
         current_node_m = temp_low_m
-        #print ("current_node_n",current_node_n)
-        #print ("current_node_m",current_node_m)
 
     else:
             the_shortest_distance = shortDistArr[endNode_n][endNode_m]
+            # store the shortest path
             the_shortest_path = []
-            #print(preVertex)
             pre_node_n = preVertex[endNode_n][endNode_m][0]
             pre_node_m = preVertex[endNode_n][endNode_m][1]
             the_shortest_path.insert(0,[endNode_n,endNode_m])
-
-            #print('startNode %d%d'%(startNode_n,startNode_m))
 
             # iterate to the start node
             # !!!or!!!
@@ -299,7 +274,6 @@ def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m, gradient_threshold)
                 pre_node_m = preVertex[pre_node_n][pre_node_m][1]
 
             else:
-                #print(shortDistArr)
                 the_shortest_path.insert(0, [startNode_n, startNode_m])
                 print('the shortest distance :',the_shortest_distance)
                 print('Path :',the_shortest_path)
@@ -310,6 +284,7 @@ def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m, gradient_threshold)
                     demonstrate_array[the_shortest_path[p][0]][the_shortest_path[p][1]] = 0
                 print("Route:",demonstrate_array)
 
+                # in this path the coordinates are geographic coordinates
                 geo_path = []
                 # turn the numpy coordinate back to geographical coordinates
                 for np_coord in the_shortest_path:
@@ -319,9 +294,8 @@ def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m, gradient_threshold)
                     geo_path.append(geo_node)
                 print('geo_path',geo_path)
 
-
                 # create the path (polyline) shape file
-                # A list that will hold each of the Polyline objects
+                # A list that will hold each of the Polyline objects/ in this case only one polyline
                 path = []
                 path.append(geo_path)
                 features = []
@@ -336,18 +310,13 @@ def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m, gradient_threshold)
                 arcpy.CopyFeatures_management(features, output_shape_file_path)
 
                 # put the line shape file on the map---------
-
                 # get the map document
                 #mxd = arcpy.mapping.MapDocument(input_mxd_map_path)
                 mxd = arcpy.mapping.MapDocument("CURRENT")
-
-                print(mxd)
                 # get the data frame
                 dataframe = arcpy.mapping.ListDataFrames(mxd, "*")[0]
-                print (dataframe)
                 # create a new layer
                 smooth_path_layer = arcpy.mapping.Layer(output_shape_file_path)
-                print (smooth_path_layer)
                 # add the layer to the map at the bottom of the TOC in data frame 0
                 arcpy.mapping.AddLayer(dataframe, smooth_path_layer, "TOP")
 
@@ -357,7 +326,7 @@ def dijkstra(startNode_n, startNode_m, endNode_n, endNode_m, gradient_threshold)
                 #del mxd, dataframe, smooth_path_layer
 
 
-dijkstra(input_start_n, input_start_m, input_end_n, input_end_m, input_gradient_threshold)
+dijkstra_gradient_threshold(input_start_n, input_start_m, input_end_n, input_end_m, input_gradient_threshold)
 
 
 

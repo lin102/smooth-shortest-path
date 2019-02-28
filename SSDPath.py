@@ -45,6 +45,7 @@ columns = raw_arr.shape[1]
 # Get Coordinates
 # n is row number!!! m is column number!!!
 # Return coordinates is a list contains [longitude,latitude]
+# Time complexity is O(1)
 def getCoordinates(n,m):
     coordinates = []
     # +0.5  to get the longitude and latitude from the center of each cell
@@ -62,6 +63,7 @@ Lon2 = getCoordinates(100, 101)[0]
 Lat2 = getCoordinates(100, 101)[1]
 '''
 
+# Time complexity is O( n^2 )
 def getDistance1(Lat_A,Lng_A,Lat_B,Lng_B): #Haversine with 2 radius
     ra=6378.140 #Equatorial radius
     rb=6356.755 #Polar radius
@@ -79,6 +81,7 @@ def getDistance1(Lat_A,Lng_A,Lat_B,Lng_B): #Haversine with 2 radius
     distance=ra*(xx+dr)
     return distance
 
+# Time complexity is O(1)
 def getDistance2(lat1,lng1,lat2,lng2):# Haversine distance
     radlat1=math.radians(lat1)
     radlat2=math.radians(lat2)
@@ -101,6 +104,7 @@ distancePixcel2 = getDistance2(Lat1,Lon1,Lat2,Lon2)
 # Gradient Calculation
 # n is row number m is column number
 # getGradient has direction, can be negative value
+# Time complexity is O(1)
 def getGradient(n_a, m_a, n_b, m_b):
     coord_lat_a = getCoordinates(n_a, m_a)[1]
     coord_lon_a = getCoordinates(n_a, m_a)[0]
@@ -114,6 +118,7 @@ def getGradient(n_a, m_a, n_b, m_b):
 
 
 # parameter all start from 1
+# Time complexity is O(1)
 def dijkstra_gradient_threshold(startNode_n, startNode_m, endNode_n, endNode_m, gradient_threshold):
     # to match with the all array start from 0
     startNode_n = startNode_n-1

@@ -2,32 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c72e67fe-be7b-497a-be7b-29ef81fcc2f5" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/DEM data/info/arc.dir" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEM data/info/arc0000.dat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEM data/info/arc0000.nit" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEM data/info/arc0001.dat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEM data/info/arc0001.nit" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEM data/info/arc0002.dat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEM data/info/arc0002.nit" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEM data/readme.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEM data/srtm_37_03.hdr" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEM data/srtm_37_03.tfw" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEM data/srtm_37_03.tif" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEM data/srtm_37_03_clip.tfw" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEM data/srtm_37_03_clip.tif" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEM data/srtm_37_03_clip.tif.aux.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEM data/srtm_37_03_clip.tif.ovr" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEM data/srtm_37_03_clip.tif.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEM data/srtm_37_03_mini.tfw" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEM data/srtm_37_03_mini.tif" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEM data/srtm_37_03_mini.tif.aux.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEM data/srtm_37_03_mini.tif.ovr" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DEM data/srtm_37_03_mini.tif.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/smooth_path.mxd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Path calculation tools.tbx" beforeDir="false" afterPath="$PROJECT_DIR$/Path calculation tools.tbx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SSDPath.py" beforeDir="false" afterPath="$PROJECT_DIR$/SSDPath.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/document.docx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/~$cument.docx" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -117,27 +93,15 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/SSDPath.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-4052">
+            <state relative-caret-position="1102">
               <caret line="65" column="29" selection-start-line="65" selection-start-column="29" selection-end-line="65" selection-end-column="29" />
               <folding>
                 <element signature="e#1847#1994#1" />
                 <element signature="e#5382#6990#1" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/README.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor relative-caret-position="589">
-                <caret line="31" lean-forward="true" selection-start-line="31" selection-end-line="31" />
-              </first_editor>
-              <second_editor />
             </state>
           </provider>
         </entry>
@@ -180,7 +144,7 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="720" />
     <option name="y" value="297" />
     <option name="width" value="765" />
@@ -418,7 +382,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15085287" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -506,17 +469,6 @@
     <entry file="file://$PROJECT_DIR$/clipe_dem.py" />
     <entry file="file://$PROJECT_DIR$/testarray.py" />
     <entry file="file://$PROJECT_DIR$/smoothSDPath.py" />
-    <entry file="file://$PROJECT_DIR$/SSDPath.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-4052">
-          <caret line="65" column="29" selection-start-line="65" selection-start-column="29" selection-end-line="65" selection-end-column="29" />
-          <folding>
-            <element signature="e#1847#1994#1" />
-            <element signature="e#5382#6990#1" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
@@ -524,6 +476,17 @@
             <caret line="31" lean-forward="true" selection-start-line="31" selection-end-line="31" />
           </first_editor>
           <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SSDPath.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1102">
+          <caret line="65" column="29" selection-start-line="65" selection-start-column="29" selection-end-line="65" selection-end-column="29" />
+          <folding>
+            <element signature="e#1847#1994#1" />
+            <element signature="e#5382#6990#1" />
+          </folding>
         </state>
       </provider>
     </entry>
